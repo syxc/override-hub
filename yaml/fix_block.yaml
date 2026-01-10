@@ -1,27 +1,27 @@
 # 规则插入原规则前面（最高优先级）
 +rules:
   # -------------------------------------------
-  # Sentry.io 全链路域名（确保大陆可访问）
+  # Sentry.io 全链路域名（强化版，确保大陆可访问）
   # -------------------------------------------
-  # 1. 主站与核心服务
+  # 核心控制台与文档
   - DOMAIN,sentry.io,AI
   - DOMAIN,www.sentry.io,AI
-  - DOMAIN,app.sentry.io,AI          # Web 控制台
-  - DOMAIN,docs.sentry.io,AI         # 文档站点
-
-  # 2. API 与数据上报（关键！客户端/SDK 依赖）
-  - DOMAIN-SUFFIX,ingest.sentry.io,AI    # 错误上报入口（必须代理）
-  - DOMAIN-SUFFIX,sentry.io,AI           # 兜底覆盖所有子域
-
-  # 3. 资源与 CDN
-  - DOMAIN-SUFFIX,static.sentry.io,AI    # 静态资源
-  - DOMAIN-SUFFIX,cdn.sentry.io,AI       # CDN 资源（如有）
-
-  # 4. 账户与认证
-  - DOMAIN,auth.sentry.io,AI
+  - DOMAIN,app.sentry.io,AI
+  - DOMAIN,docs.sentry.io,AI
   - DOMAIN,login.sentry.io,AI
+  - DOMAIN,auth.sentry.io,AI
 
-  # 5. 关键兜底（防止遗漏）
+  # 错误上报（必须优先匹配！）
+  - DOMAIN-SUFFIX,ingest.sentry.io,AI
+
+  # 静态资源
+  - DOMAIN-SUFFIX,static.sentry.io,AI
+  - DOMAIN-SUFFIX,cdn.sentry.io,AI
+
+  # 兜底：覆盖所有 sentry.io 子域（高优先级）
+  - DOMAIN-SUFFIX,sentry.io,AI
+
+  # 最终兜底（防漏）
   - DOMAIN-KEYWORD,sentry,AI
 
   # -------------------------------------------

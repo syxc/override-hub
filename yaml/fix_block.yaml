@@ -1,33 +1,28 @@
-# 规则插入原规则前面（最高优先级，Antigravity 规则优先匹配）
+# 规则插入原规则前面（最高优先级）
 +rules:
   # -------------------------------------------
-  # Google Antigravity 全链路域名（确保正常访问）
+  # Sentry.io 全链路域名（确保大陆可访问）
   # -------------------------------------------
-  # 1. 核心服务域名（主站、登录、下载）
-  - DOMAIN,antigravity.google.com,AI  # 官方主域名
-  - DOMAIN,antigravity.google.com.au,AI  # 备用地区域名
-  - DOMAIN,download.antigravity.google.com,AI  # 客户端下载地址
-  - DOMAIN,accounts.antigravity.google.com,AI  # 账号登录验证
-  
-  # 2. 功能接口与API（核心功能依赖）
-  - DOMAIN,api.antigravity.google.com,AI  # 主API接口
-  - DOMAIN-SUFFIX,antigravity.googleapis.com,AI  # 扩展API服务
-  - DOMAIN,rpc.antigravity.google.com,AI  # 实时通信接口（代码同步用）
-  
-  # 3. 资源与存储（避免页面空白、功能缺失）
-  - DOMAIN-SUFFIX,cdn.antigravity.google.com,AI  # 静态资源CDN
-  - DOMAIN-SUFFIX,assets.antigravity.google.com,AI  # 样式/图片资源
-  - DOMAIN-SUFFIX,storage.antigravity.google.com,AI  # 项目文件存储
-  - DOMAIN-SUFFIX,fonts.antigravity.google.com,AI  # 字体资源（界面渲染）
-  
-  # 4. 依赖的谷歌基础服务（必须走代理）
-  - DOMAIN-SUFFIX,googleapis.com,AI  # 谷歌API平台（核心依赖）
-  - DOMAIN-SUFFIX,cloud.google.com,AI  # 谷歌云服务（项目运行环境）
-  - DOMAIN-SUFFIX,googleusercontent.com,AI  # 用户内容存储（上传文件/截图）
-  - DOMAIN-SUFFIX,gstatic.com,AI  # 谷歌静态资源库（图标/基础样式）
-  
-  # 5. 兜底匹配（无遗漏）
-  - DOMAIN-KEYWORD,antigravity,AI  # 所有含"antigravity"的域名
+  # 1. 主站与核心服务
+  - DOMAIN,sentry.io,AI
+  - DOMAIN,www.sentry.io,AI
+  - DOMAIN,app.sentry.io,AI          # Web 控制台
+  - DOMAIN,docs.sentry.io,AI         # 文档站点
+
+  # 2. API 与数据上报（关键！客户端/SDK 依赖）
+  - DOMAIN-SUFFIX,ingest.sentry.io,AI    # 错误上报入口（必须代理）
+  - DOMAIN-SUFFIX,sentry.io,AI           # 兜底覆盖所有子域
+
+  # 3. 资源与 CDN
+  - DOMAIN-SUFFIX,static.sentry.io,AI    # 静态资源
+  - DOMAIN-SUFFIX,cdn.sentry.io,AI       # CDN 资源（如有）
+
+  # 4. 账户与认证
+  - DOMAIN,auth.sentry.io,AI
+  - DOMAIN,login.sentry.io,AI
+
+  # 5. 关键兜底（防止遗漏）
+  - DOMAIN-KEYWORD,sentry,AI
 
   # -------------------------------------------
   # Arc 浏览器全链路域名（原有配置，无改动）
@@ -93,7 +88,7 @@
   - DOMAIN-SUFFIX,identity.perplexity.ai,AI
   - DOMAIN-SUFFIX,docs.perplexity.ai,AI
 
-# DNS 全局优化（新增 Antigravity 解析配置，不影响原有服务）
+# DNS 全局优化（仅保留必要服务解析配置）
 dns:
   enable: true
   ipv6: false  # 针对海外服务，优先关闭
@@ -117,16 +112,8 @@ dns:
       strategy: UseIP
     - match: '*.browserinc.com'
       strategy: UseIP
-    # 新增 Antigravity 解析策略（避免解析污染）
-    - match: '*.antigravity.google.com'
-      strategy: UseIP
-    - match: '*.antigravity.googleapis.com'
-      strategy: UseIP
-    - match: '*.googleapis.com'
-      strategy: UseIP
-    - match: '*.cloud.google.com'
-      strategy: UseIP
-    - match: '*.gstatic.com'
+    # Sentry 解析策略（避免 DNS 污染）
+    - match: '*.sentry.io'
       strategy: UseIP
 
   fake-ip-filter:
@@ -139,10 +126,5 @@ dns:
     - 'browserinc.notion.site'
     - '*.browserinc.com'
     - '*.arc-downloads.com'
-    # 新增 Antigravity 过滤规则（避免 fake-ip 拦截）
-    - '*.antigravity.google.com'
-    - '*.antigravity.googleapis.com'
-    - '*.googleapis.com'
-    - '*.cloud.google.com'
-    - '*.googleusercontent.com'
-    - '*.gstatic.com'
+    # Sentry 过滤规则（避免 fake-ip 导致 TLS 握手失败）
+    - '*.sentry.io'

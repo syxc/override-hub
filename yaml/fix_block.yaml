@@ -1,30 +1,6 @@
 # 规则插入原规则前面（最高优先级）
 +rules:
   # -------------------------------------------
-  # Sentry.io 全链路域名（强化版，确保大陆可访问）
-  # -------------------------------------------
-  # 核心控制台与文档
-  - DOMAIN,sentry.io,AI
-  - DOMAIN,www.sentry.io,AI
-  - DOMAIN,app.sentry.io,AI
-  - DOMAIN,docs.sentry.io,AI
-  - DOMAIN,login.sentry.io,AI
-  - DOMAIN,auth.sentry.io,AI
-
-  # 错误上报（必须优先匹配！）
-  - DOMAIN-SUFFIX,ingest.sentry.io,AI
-
-  # 静态资源
-  - DOMAIN-SUFFIX,static.sentry.io,AI
-  - DOMAIN-SUFFIX,cdn.sentry.io,AI
-
-  # 兜底：覆盖所有 sentry.io 子域（高优先级）
-  - DOMAIN-SUFFIX,sentry.io,AI
-
-  # 最终兜底（防漏）
-  - DOMAIN-KEYWORD,sentry,AI
-
-  # -------------------------------------------
   # Arc 浏览器全链路域名（原有配置，无改动）
   # -------------------------------------------
   # 1. 跳转拦截页
@@ -112,9 +88,6 @@ dns:
       strategy: UseIP
     - match: '*.browserinc.com'
       strategy: UseIP
-    # Sentry 解析策略（避免 DNS 污染）
-    - match: '*.sentry.io'
-      strategy: UseIP
 
   fake-ip-filter:
     # 原有过滤规则
@@ -126,5 +99,3 @@ dns:
     - 'browserinc.notion.site'
     - '*.browserinc.com'
     - '*.arc-downloads.com'
-    # Sentry 过滤规则（避免 fake-ip 导致 TLS 握手失败）
-    - '*.sentry.io'

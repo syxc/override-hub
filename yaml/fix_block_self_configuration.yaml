@@ -1,0 +1,101 @@
+# 规则插入原规则前面（最高优先级）
++rules:
+  # -------------------------------------------
+  # Arc 浏览器全链路域名（原有配置，无改动）
+  # -------------------------------------------
+  # 1. 跳转拦截页
+  - DOMAIN,browserinc.notion.site,🤖 AI服务
+  - DOMAIN-SUFFIX,browserinc.com,🤖 AI服务
+
+  # 2. 核心服务域名
+  - DOMAIN-SUFFIX,arc.net,🤖 AI服务
+  - DOMAIN,api.arc.net,🤖 AI服务
+  - DOMAIN,auth.arc.net,🤖 AI服务
+  - DOMAIN,account.arc.net,🤖 AI服务
+
+  # 3. 下载相关域名
+  - DOMAIN,download.arc.net,🤖 AI服务
+  - DOMAIN-SUFFIX,downloads.arc.net,🤖 AI服务
+  - DOMAIN-SUFFIX,arc-downloads.com,🤖 AI服务
+
+  # 4. 资源与通信域名
+  - DOMAIN-SUFFIX,cdn.arc.net,🤖 AI服务
+  - DOMAIN-SUFFIX,assets.arc.net,🤖 AI服务
+  - DOMAIN-SUFFIX,ws.arc.net,🤖 AI服务
+  - DOMAIN-SUFFIX,wss.arc.net,🤖 AI服务
+  - DOMAIN-SUFFIX,fonts.arc.net,🤖 AI服务
+
+  # 5. 兜底匹配
+  - DOMAIN-KEYWORD,arc,🤖 AI服务
+
+  # -------------------------------------------
+  # Dia 浏览器全链路域名（原有配置，无改动）
+  # -------------------------------------------
+  # 账号与地区验证核心域名
+  - DOMAIN,account.diabrowser.engineering,🤖 AI服务
+  - DOMAIN,identity.diabrowser.com,🤖 AI服务
+  # 主域与子域
+  - DOMAIN-SUFFIX,diabrowser.com,🤖 AI服务
+  - DOMAIN-SUFFIX,diabrowser.engineering,🤖 AI服务
+  - DOMAIN,api.diabrowser.com,🤖 AI服务
+  # 资源与通信域名
+  - DOMAIN-SUFFIX,diabrowserusercontent.com,🤖 AI服务
+  - DOMAIN-SUFFIX,diabrowser.com.hk,🤖 AI服务
+  - DOMAIN-SUFFIX,cdn.diabrowser.com,🤖 AI服务
+  - DOMAIN-SUFFIX,ws.diabrowser.com,🤖 AI服务
+  - DOMAIN-SUFFIX,wss.diabrowser.com,🤖 AI服务
+
+  # -------------------------------------------
+  # Comet 浏览器全链路域名（原有配置，无改动）
+  # -------------------------------------------
+  # 官方核心域名
+  - DOMAIN-SUFFIX,perplexity.ai,🤖 AI服务
+  - DOMAIN-SUFFIX,pplx.ai,🤖 AI服务
+  # Comet 专属子域
+  - DOMAIN-SUFFIX,comet.perplexity.ai,🤖 AI服务
+  - DOMAIN,api.perplexity.ai,🤖 AI服务
+  - DOMAIN,auth.perplexity.ai,🤖 AI服务
+  # 资源与通信域名
+  - DOMAIN-SUFFIX,cdn.perplexity.ai,🤖 AI服务
+  - DOMAIN-SUFFIX,assets.perplexity.ai,🤖 AI服务
+  - DOMAIN-SUFFIX,ws.perplexity.ai,🤖 AI服务
+  - DOMAIN-SUFFIX,wss.perplexity.ai,🤖 AI服务
+  # 备用兼容域名
+  - DOMAIN-SUFFIX,identity.perplexity.ai,🤖 AI服务
+  - DOMAIN-SUFFIX,docs.perplexity.ai,🤖 AI服务
+
+# DNS 全局优化（仅保留必要服务解析配置）
+dns:
+  enable: true
+  ipv6: false  # 针对海外服务，优先关闭
+  enhanced-mode: redir-host
+  listen: 0.0.0.0:53
+  nameservers:
+    - 1.1.1.1         # Cloudflare（最快解析海外域名）
+    - 8.8.8.8         # Google（适配谷歌服务解析）
+    - 119.29.29.29    # 腾讯DNS（国内网站备用）
+  domain-strategy:
+    # 原有解析策略
+    - match: '*.diabrowser.*'
+      strategy: UseIP
+    - match: '*.perplexity.ai'
+      strategy: UseIP
+    - match: '*.pplx.ai'
+      strategy: UseIP
+    - match: '*.arc.net'
+      strategy: UseIP
+    - match: 'browserinc.notion.site'
+      strategy: UseIP
+    - match: '*.browserinc.com'
+      strategy: UseIP
+
+  fake-ip-filter:
+    # 原有过滤规则
+    - '*.diabrowser.com'
+    - '*.diabrowser.engineering'
+    - '*.perplexity.ai'
+    - '*.pplx.ai'
+    - '*.arc.net'
+    - 'browserinc.notion.site'
+    - '*.browserinc.com'
+    - '*.arc-downloads.com'

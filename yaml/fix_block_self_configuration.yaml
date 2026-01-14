@@ -1,3 +1,4 @@
+# 专为这个配置调整的：https://github.com/ClashConnectRules/Self-Configuration/blob/main/Clash.yaml
 # 规则插入原规则前面（最高优先级）
 +rules:
   # -------------------------------------------

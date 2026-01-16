@@ -1,46 +1,30 @@
 # 规则插入原规则前面（最高优先级）
 +rules:
   # -------------------------------------------
-  # Google Antigravity 全链路域名（精确匹配）
-  # -------------------------------------------
-  - DOMAIN,antigravity.google.com,AI
-  - DOMAIN,antigravity.google.com.au,AI
-  - DOMAIN,accounts.antigravity.google.com,AI
-  - DOMAIN,api.antigravity.google.com,AI
-  - DOMAIN,rpc.antigravity.google.com,AI
-  - DOMAIN,download.antigravity.google.com,AI
-  - DOMAIN,cdn.antigravity.google.com,AI
-  - DOMAIN,assets.antigravity.google.com,AI
-  - DOMAIN,storage.antigravity.google.com,AI
-  - DOMAIN,fonts.antigravity.google.com,AI
-  - DOMAIN-SUFFIX,antigravity.googleapis.com,AI
-  - DOMAIN-KEYWORD,antigravity,AI
-
-  # -------------------------------------------
   # Arc 浏览器全链路域名（原有配置，无改动）
   # -------------------------------------------
   # 1. 跳转拦截页
   - DOMAIN,browserinc.notion.site,AI
   - DOMAIN-SUFFIX,browserinc.com,AI
-  
+
   # 2. 核心服务域名
   - DOMAIN-SUFFIX,arc.net,AI
   - DOMAIN,api.arc.net,AI
   - DOMAIN,auth.arc.net,AI
   - DOMAIN,account.arc.net,AI
-  
+
   # 3. 下载相关域名
   - DOMAIN,download.arc.net,AI
   - DOMAIN-SUFFIX,downloads.arc.net,AI
   - DOMAIN-SUFFIX,arc-downloads.com,AI
-  
+
   # 4. 资源与通信域名
   - DOMAIN-SUFFIX,cdn.arc.net,AI
   - DOMAIN-SUFFIX,assets.arc.net,AI
   - DOMAIN-SUFFIX,ws.arc.net,AI
   - DOMAIN-SUFFIX,wss.arc.net,AI
   - DOMAIN-SUFFIX,fonts.arc.net,AI
-  
+
   # 5. 兜底匹配
   - DOMAIN-KEYWORD,arc,AI
 
@@ -80,39 +64,33 @@
   - DOMAIN-SUFFIX,identity.perplexity.ai,AI
   - DOMAIN-SUFFIX,docs.perplexity.ai,AI
 
-# DNS 配置：使用 nameserver-policy 彻底绕过 Fake-IP
+# DNS 全局优化（仅保留必要服务解析配置）
 dns:
   enable: true
-  ipv6: false
+  ipv6: false  # 针对海外服务，优先关闭
   enhanced-mode: redir-host
   listen: 0.0.0.0:53
   nameservers:
-    - 1.1.1.1
-    - 8.8.8.8
-    - 119.29.29.29
-  fallback-filter:
-    geoip: true
-    geoip-code: CN
-    ipcidr:
-      - 240.0.0.0/4
-    ipv6: false
+    - 1.1.1.1         # Cloudflare（最快解析海外域名）
+    - 8.8.8.8         # Google（适配谷歌服务解析）
+    - 119.29.29.29    # 腾讯DNS（国内网站备用）
+  domain-strategy:
+    # 原有解析策略
+    - match: '*.diabrowser.*'
+      strategy: UseIP
+    - match: '*.perplexity.ai'
+      strategy: UseIP
+    - match: '*.pplx.ai'
+      strategy: UseIP
+    - match: '*.arc.net'
+      strategy: UseIP
+    - match: 'browserinc.notion.site'
+      strategy: UseIP
+    - match: '*.browserinc.com'
+      strategy: UseIP
 
-  # ⭐ 关键：为 Antigravity 域名指定专用 DNS 策略（禁用 Fake-IP）
-  nameserver-policy:
-    "antigravity.google.com": [1.1.1.1, 8.8.8.8]
-    "antigravity.google.com.au": [1.1.1.1, 8.8.8.8]
-    "accounts.antigravity.google.com": [1.1.1.1, 8.8.8.8]
-    "api.antigravity.google.com": [1.1.1.1, 8.8.8.8]
-    "rpc.antigravity.google.com": [1.1.1.1, 8.8.8.8]
-    "download.antigravity.google.com": [1.1.1.1, 8.8.8.8]
-    "cdn.antigravity.google.com": [1.1.1.1, 8.8.8.8]
-    "assets.antigravity.google.com": [1.1.1.1, 8.8.8.8]
-    "storage.antigravity.google.com": [1.1.1.1, 8.8.8.8]
-    "fonts.antigravity.google.com": [1.1.1.1, 8.8.8.8]
-    "*.antigravity.googleapis.com": [1.1.1.1, 8.8.8.8]
-
-  # fake-ip-filter 仍保留（双重保险）
   fake-ip-filter:
+    # 原有过滤规则
     - '*.diabrowser.com'
     - '*.diabrowser.engineering'
     - '*.perplexity.ai'
@@ -121,15 +99,3 @@ dns:
     - 'browserinc.notion.site'
     - '*.browserinc.com'
     - '*.arc-downloads.com'
-    - 'antigravity.google.com'
-    - 'antigravity.google.com.au'
-    - 'accounts.antigravity.google.com'
-    - 'api.antigravity.google.com'
-    - 'rpc.antigravity.google.com'
-    - 'download.antigravity.google.com'
-    - 'cdn.antigravity.google.com'
-    - 'assets.antigravity.google.com'
-    - 'storage.antigravity.google.com'
-    - 'fonts.antigravity.google.com'
-    - 'antigravity.googleapis.com'
-    - '*.antigravity.googleapis.com'

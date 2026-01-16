@@ -1,28 +1,19 @@
 # 规则插入原规则前面（最高优先级）
 +rules:
   # -------------------------------------------
-  # Google Antigravity 全链路域名（终极 Redir-Host 兼容版）
+  # Google Antigravity 全链路域名（精确匹配，避免 Fake-IP）
   # -------------------------------------------
-  # 核心主域（必须精确匹配）
   - DOMAIN,antigravity.google.com,AI
   - DOMAIN,antigravity.google.com.au,AI
-
-  # 子服务（明确列出，避免依赖兜底）
   - DOMAIN,accounts.antigravity.google.com,AI
   - DOMAIN,api.antigravity.google.com,AI
   - DOMAIN,rpc.antigravity.google.com,AI
   - DOMAIN,download.antigravity.google.com,AI
-
-  # 资源子域（CDN/Assets/Storage/Fonts）
   - DOMAIN,cdn.antigravity.google.com,AI
   - DOMAIN,assets.antigravity.google.com,AI
   - DOMAIN,storage.antigravity.google.com,AI
   - DOMAIN,fonts.antigravity.google.com,AI
-
-  # 扩展 API（Google Cloud 风格）
   - DOMAIN-SUFFIX,antigravity.googleapis.com,AI
-
-  # 最终兜底（仅限 antigravity 关键词）
   - DOMAIN-KEYWORD,antigravity,AI
 
   # -------------------------------------------
@@ -89,7 +80,7 @@
   - DOMAIN-SUFFIX,identity.perplexity.ai,AI
   - DOMAIN-SUFFIX,docs.perplexity.ai,AI
 
-# DNS 全局优化（专为 Antigravity 修复 TLS 问题）
+# DNS 全局优化（专为修复 Antigravity Fake-IP 问题）
 dns:
   enable: true
   ipv6: false
@@ -106,7 +97,7 @@ dns:
       - 240.0.0.0/4
     ipv6: false
   domain-strategy:
-    # 原有策略
+    # 原有解析策略
     - match: '*.diabrowser.*'
       strategy: UseIP
     - match: '*.perplexity.ai'
@@ -119,7 +110,7 @@ dns:
       strategy: UseIP
     - match: '*.browserinc.com'
       strategy: UseIP
-    # Antigravity：强制 UseIP（返回真实 IP，禁用 Fake-IP）
+    # Antigravity：逐域名强制 UseIP（返回真实 IP）
     - match: 'antigravity.google.com'
       strategy: UseIP
     - match: 'antigravity.google.com.au'
@@ -144,7 +135,7 @@ dns:
       strategy: UseIP
 
   fake-ip-filter:
-    # 原有过滤
+    # 原有过滤规则
     - '*.diabrowser.com'
     - '*.diabrowser.engineering'
     - '*.perplexity.ai'
@@ -153,7 +144,7 @@ dns:
     - 'browserinc.notion.site'
     - '*.browserinc.com'
     - '*.arc-downloads.com'
-    # Antigravity：显式排除所有相关域名（防止 Fake-IP）
+    # Antigravity：逐个显式排除，确保不返回 Fake-IP
     - 'antigravity.google.com'
     - 'antigravity.google.com.au'
     - 'accounts.antigravity.google.com'
@@ -164,4 +155,5 @@ dns:
     - 'assets.antigravity.google.com'
     - 'storage.antigravity.google.com'
     - 'fonts.antigravity.google.com'
+    - 'antigravity.googleapis.com'
     - '*.antigravity.googleapis.com'

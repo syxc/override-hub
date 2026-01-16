@@ -1,7 +1,7 @@
 # 规则插入原规则前面（最高优先级）
 +rules:
   # -------------------------------------------
-  # Google Antigravity 全链路域名（精确匹配，避免 Fake-IP）
+  # Google Antigravity 全链路域名（精确匹配）
   # -------------------------------------------
   - DOMAIN,antigravity.google.com,AI
   - DOMAIN,antigravity.google.com.au,AI
@@ -80,7 +80,7 @@
   - DOMAIN-SUFFIX,identity.perplexity.ai,AI
   - DOMAIN-SUFFIX,docs.perplexity.ai,AI
 
-# DNS 全局优化（专为修复 Antigravity Fake-IP 问题）
+# DNS 配置：使用 nameserver-policy 彻底绕过 Fake-IP
 dns:
   enable: true
   ipv6: false
@@ -96,46 +96,23 @@ dns:
     ipcidr:
       - 240.0.0.0/4
     ipv6: false
-  domain-strategy:
-    # 原有解析策略
-    - match: '*.diabrowser.*'
-      strategy: UseIP
-    - match: '*.perplexity.ai'
-      strategy: UseIP
-    - match: '*.pplx.ai'
-      strategy: UseIP
-    - match: '*.arc.net'
-      strategy: UseIP
-    - match: 'browserinc.notion.site'
-      strategy: UseIP
-    - match: '*.browserinc.com'
-      strategy: UseIP
-    # Antigravity：逐域名强制 UseIP（返回真实 IP）
-    - match: 'antigravity.google.com'
-      strategy: UseIP
-    - match: 'antigravity.google.com.au'
-      strategy: UseIP
-    - match: 'accounts.antigravity.google.com'
-      strategy: UseIP
-    - match: 'api.antigravity.google.com'
-      strategy: UseIP
-    - match: 'rpc.antigravity.google.com'
-      strategy: UseIP
-    - match: 'download.antigravity.google.com'
-      strategy: UseIP
-    - match: 'cdn.antigravity.google.com'
-      strategy: UseIP
-    - match: 'assets.antigravity.google.com'
-      strategy: UseIP
-    - match: 'storage.antigravity.google.com'
-      strategy: UseIP
-    - match: 'fonts.antigravity.google.com'
-      strategy: UseIP
-    - match: '*.antigravity.googleapis.com'
-      strategy: UseIP
 
+  # ⭐ 关键：为 Antigravity 域名指定专用 DNS 策略（禁用 Fake-IP）
+  nameserver-policy:
+    "antigravity.google.com": [1.1.1.1, 8.8.8.8]
+    "antigravity.google.com.au": [1.1.1.1, 8.8.8.8]
+    "accounts.antigravity.google.com": [1.1.1.1, 8.8.8.8]
+    "api.antigravity.google.com": [1.1.1.1, 8.8.8.8]
+    "rpc.antigravity.google.com": [1.1.1.1, 8.8.8.8]
+    "download.antigravity.google.com": [1.1.1.1, 8.8.8.8]
+    "cdn.antigravity.google.com": [1.1.1.1, 8.8.8.8]
+    "assets.antigravity.google.com": [1.1.1.1, 8.8.8.8]
+    "storage.antigravity.google.com": [1.1.1.1, 8.8.8.8]
+    "fonts.antigravity.google.com": [1.1.1.1, 8.8.8.8]
+    "*.antigravity.googleapis.com": [1.1.1.1, 8.8.8.8]
+
+  # fake-ip-filter 仍保留（双重保险）
   fake-ip-filter:
-    # 原有过滤规则
     - '*.diabrowser.com'
     - '*.diabrowser.engineering'
     - '*.perplexity.ai'
@@ -144,7 +121,6 @@ dns:
     - 'browserinc.notion.site'
     - '*.browserinc.com'
     - '*.arc-downloads.com'
-    # Antigravity：逐个显式排除，确保不返回 Fake-IP
     - 'antigravity.google.com'
     - 'antigravity.google.com.au'
     - 'accounts.antigravity.google.com'

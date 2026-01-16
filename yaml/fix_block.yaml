@@ -1,6 +1,35 @@
 # 规则插入原规则前面（最高优先级）
 +rules:
   # -------------------------------------------
+  # Google Antigravity 全链路域名（确保正常访问）
+  # -------------------------------------------
+  # 1. 核心服务域名（主站、登录、下载）
+  - DOMAIN,antigravity.google.com,AI  # 官方主域名
+  - DOMAIN,antigravity.google.com.au,AI  # 备用地区域名
+  - DOMAIN,download.antigravity.google.com,AI  # 客户端下载地址
+  - DOMAIN,accounts.antigravity.google.com,AI  # 账号登录验证
+  
+  # 2. 功能接口与API（核心功能依赖）
+  - DOMAIN,api.antigravity.google.com,AI  # 主API接口
+  - DOMAIN-SUFFIX,antigravity.googleapis.com,AI  # 扩展API服务
+  - DOMAIN,rpc.antigravity.google.com,AI  # 实时通信接口（代码同步用）
+  
+  # 3. 资源与存储（避免页面空白、功能缺失）
+  - DOMAIN-SUFFIX,cdn.antigravity.google.com,AI  # 静态资源CDN
+  - DOMAIN-SUFFIX,assets.antigravity.google.com,AI  # 样式/图片资源
+  - DOMAIN-SUFFIX,storage.antigravity.google.com,AI  # 项目文件存储
+  - DOMAIN-SUFFIX,fonts.antigravity.google.com,AI  # 字体资源（界面渲染）
+  
+  # 4. 依赖的谷歌基础服务（必须走代理）
+  - DOMAIN-SUFFIX,googleapis.com,AI  # 谷歌API平台（核心依赖）
+  - DOMAIN-SUFFIX,cloud.google.com,AI  # 谷歌云服务（项目运行环境）
+  - DOMAIN-SUFFIX,googleusercontent.com,AI  # 用户内容存储（上传文件/截图）
+  - DOMAIN-SUFFIX,gstatic.com,AI  # 谷歌静态资源库（图标/基础样式）
+  
+  # 5. 兜底匹配（无遗漏）
+  - DOMAIN-KEYWORD,antigravity,AI  # 所有含"antigravity"的域名
+
+  # -------------------------------------------
   # Arc 浏览器全链路域名（原有配置，无改动）
   # -------------------------------------------
   # 1. 跳转拦截页
@@ -88,6 +117,17 @@ dns:
       strategy: UseIP
     - match: '*.browserinc.com'
       strategy: UseIP
+    # 新增 Antigravity 解析策略（避免解析污染）
+    - match: '*.antigravity.google.com'
+      strategy: UseIP
+    - match: '*.antigravity.googleapis.com'
+      strategy: UseIP
+    - match: '*.googleapis.com'
+      strategy: UseIP
+    - match: '*.cloud.google.com'
+      strategy: UseIP
+    - match: '*.gstatic.com'
+      strategy: UseIP
 
   fake-ip-filter:
     # 原有过滤规则
@@ -99,3 +139,10 @@ dns:
     - 'browserinc.notion.site'
     - '*.browserinc.com'
     - '*.arc-downloads.com'
+    # 新增 Antigravity 过滤规则（避免 fake-ip 拦截）
+    - '*.antigravity.google.com'
+    - '*.antigravity.googleapis.com'
+    - '*.googleapis.com'
+    - '*.cloud.google.com'
+    - '*.googleusercontent.com'
+    - '*.gstatic.com'

@@ -1,33 +1,27 @@
 # 规则插入原规则前面（最高优先级）
 +rules:
   # -------------------------------------------
-  # Google Antigravity 全链路域名（确保正常访问）
+  # Google Antigravity 全链路域名（Redir-Host 友好版）
   # -------------------------------------------
-  # 1. 核心服务域名（主站、登录、下载）
-  - DOMAIN,antigravity.google.com,AI  # 官方主域名
-  - DOMAIN,antigravity.google.com.au,AI  # 备用地区域名
-  - DOMAIN,download.antigravity.google.com,AI  # 客户端下载地址
-  - DOMAIN,accounts.antigravity.google.com,AI  # 账号登录验证
-  
-  # 2. 功能接口与API（核心功能依赖）
-  - DOMAIN,api.antigravity.google.com,AI  # 主API接口
-  - DOMAIN-SUFFIX,antigravity.googleapis.com,AI  # 扩展API服务
-  - DOMAIN,rpc.antigravity.google.com,AI  # 实时通信接口（代码同步用）
-  
-  # 3. 资源与存储（避免页面空白、功能缺失）
-  - DOMAIN-SUFFIX,cdn.antigravity.google.com,AI  # 静态资源CDN
-  - DOMAIN-SUFFIX,assets.antigravity.google.com,AI  # 样式/图片资源
-  - DOMAIN-SUFFIX,storage.antigravity.google.com,AI  # 项目文件存储
-  - DOMAIN-SUFFIX,fonts.antigravity.google.com,AI  # 字体资源（界面渲染）
-  
-  # 4. 依赖的谷歌基础服务（必须走代理）
-  - DOMAIN-SUFFIX,googleapis.com,AI  # 谷歌API平台（核心依赖）
-  - DOMAIN-SUFFIX,cloud.google.com,AI  # 谷歌云服务（项目运行环境）
-  - DOMAIN-SUFFIX,googleusercontent.com,AI  # 用户内容存储（上传文件/截图）
-  - DOMAIN-SUFFIX,gstatic.com,AI  # 谷歌静态资源库（图标/基础样式）
-  
-  # 5. 兜底匹配（无遗漏）
-  - DOMAIN-KEYWORD,antigravity,AI  # 所有含"antigravity"的域名
+  # 1. 核心服务（精确匹配）
+  - DOMAIN,antigravity.google.com,AI
+  - DOMAIN,antigravity.google.com.au,AI
+  - DOMAIN,download.antigravity.google.com,AI
+  - DOMAIN,accounts.antigravity.google.com,AI
+
+  # 2. API 与通信
+  - DOMAIN,api.antigravity.google.com,AI
+  - DOMAIN-SUFFIX,antigravity.googleapis.com,AI
+  - DOMAIN,rpc.antigravity.google.com,AI
+
+  # 3. 资源（限定 antigravity 子域）
+  - DOMAIN-SUFFIX,cdn.antigravity.google.com,AI
+  - DOMAIN-SUFFIX,assets.antigravity.google.com,AI
+  - DOMAIN-SUFFIX,storage.antigravity.google.com,AI
+  - DOMAIN-SUFFIX,fonts.antigravity.google.com,AI
+
+  # 4. 关键兜底（仅限含 antigravity 的域名）
+  - DOMAIN-KEYWORD,antigravity,AI
 
   # -------------------------------------------
   # Arc 浏览器全链路域名（原有配置，无改动）
@@ -93,16 +87,22 @@
   - DOMAIN-SUFFIX,identity.perplexity.ai,AI
   - DOMAIN-SUFFIX,docs.perplexity.ai,AI
 
-# DNS 全局优化（仅保留必要服务解析配置）
+# DNS 全局优化（Redir-Host 友好配置）
 dns:
   enable: true
-  ipv6: false  # 针对海外服务，优先关闭
+  ipv6: false
   enhanced-mode: redir-host
   listen: 0.0.0.0:53
   nameservers:
-    - 1.1.1.1         # Cloudflare（最快解析海外域名）
-    - 8.8.8.8         # Google（适配谷歌服务解析）
-    - 119.29.29.29    # 腾讯DNS（国内网站备用）
+    - 1.1.1.1         # Cloudflare
+    - 8.8.8.8         # Google
+    - 119.29.29.29    # 腾讯DNS
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+    ipcidr:
+      - 240.0.0.0/4   # 过滤无效 IP 段
+    ipv6: false       # 强制禁用 IPv6
   domain-strategy:
     # 原有解析策略
     - match: '*.diabrowser.*'
@@ -117,16 +117,10 @@ dns:
       strategy: UseIP
     - match: '*.browserinc.com'
       strategy: UseIP
-    # 新增 Antigravity 解析策略（避免解析污染）
+    # Antigravity 专用解析策略
     - match: '*.antigravity.google.com'
       strategy: UseIP
     - match: '*.antigravity.googleapis.com'
-      strategy: UseIP
-    - match: '*.googleapis.com'
-      strategy: UseIP
-    - match: '*.cloud.google.com'
-      strategy: UseIP
-    - match: '*.gstatic.com'
       strategy: UseIP
 
   fake-ip-filter:
@@ -139,10 +133,6 @@ dns:
     - 'browserinc.notion.site'
     - '*.browserinc.com'
     - '*.arc-downloads.com'
-    # 新增 Antigravity 过滤规则（避免 fake-ip 拦截）
+    # Antigravity 专用 fake-ip 过滤（避免 TLS 握手失败）
     - '*.antigravity.google.com'
     - '*.antigravity.googleapis.com'
-    - '*.googleapis.com'
-    - '*.cloud.google.com'
-    - '*.googleusercontent.com'
-    - '*.gstatic.com'
